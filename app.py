@@ -95,7 +95,6 @@ def callback():
 
     return 'OK'
 
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "出勤":
