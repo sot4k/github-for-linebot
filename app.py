@@ -67,7 +67,7 @@ def punch_out():
 app = Flask(__name__)
 
 YOUR_CHANNEL_ACCESS_TOKEN = 'eVQVwlnnybvY62jzq8E+u5j0ql5+TunFFy3H1qw/E4Y7nryZL7TLUhfUsOFrYjLw8qaHCdPieNuVE4mGGXY+EgE4ZOq8vLmgAg5o54nG09JmoAJA2psjI0fiKE57kF8sdeu2IWar7grxEZY68uVqzgdB04t89/1O/w1cDnyilFU='
-YOUR_CHANNEL_SECRET = 'df4704e66482f4b9dc55db0b82192a16'
+YOUR_CHANNEL_SECRET = 'd058ffa9941847ab9c17b2de3e99a55c'
 
 line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
 handler = WebhookHandler('YOUR_CHANNEL_SECRET')
