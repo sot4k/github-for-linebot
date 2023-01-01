@@ -103,13 +103,11 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='出勤登録完了しました！'))
-
     elif event.message.text == "退勤":
         punch_out()
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='退勤登録完了しました！'))
-    
     else: 
         line_bot_api.reply_message(
             event.reply_token,
