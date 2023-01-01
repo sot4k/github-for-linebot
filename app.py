@@ -77,6 +77,12 @@ handler = WebhookHandler('YOUR_CHANNEL_SECRET')
 def hello_world():
     return "hello world"
 
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=event.message.text))
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -114,11 +120,7 @@ def handle_message(event):
             TextSendMessage(text='こちらは出退勤を管理するボットです'))
 '''
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text))
+
 
 
 if __name__ == "__main__":
