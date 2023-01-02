@@ -15,6 +15,8 @@ import os
 
 import pandas as pd
 
+import time
+
 from datetime import datetime
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -35,8 +37,9 @@ def auth():
     return worksheet
 
 
-#　出勤
+#　開始
 def punch_in():
+    start_time = time.time()
     worksheet = auth()
     df = pd.DataFrame(worksheet.get_all_records())
 
@@ -45,14 +48,18 @@ def punch_in():
     punch_in = timestamp.strftime('%H:%M')
 
     data = [[date, punch_in, '00:00']]
-    df1 = pd.DataFrame(data, columns = ['日付', '出勤時間', '退勤時間'])
+    df1 = pd.DataFrame(data, columns = ['日付', '勉強開始時間', '勉強終了時間', '勉強時間'])
     df = pd.concat([df, df1])
-
+    
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
-    print('勤怠（出勤）登録完了しました')
 
-#　退勤
+#　終了
 def punch_out():
+    elapsed_time = int(time.time() - start_time)
+    elapsed_hour = elapsed_time // 3600
+    elapsed_minute = (elapsed_time % 3600) // 60
+    elapsed_second = (elapsed_time % 3600 % 60)
+    
     worksheet = auth()
     df = pd.DataFrame(worksheet.get_all_records())
 
@@ -60,14 +67,18 @@ def punch_out():
     punch_out = timestamp.strftime('%H:%M')
 
     df.iloc[-1, 2] = punch_out
+
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
-    print('勤怠（退勤）登録完了しました')
+    
     
     
 app = Flask(__name__)
 
-line_bot_api = LineBotApi('jjVn95fN2oKScGSAkgBPQHkldMEDFDeZR/finOubFVWnSiSYBswORQQV/JtBMlLF8qaHCdPieNuVE4mGGXY+EgE4ZOq8vLmgAg5o54nG09J/hXCt65cqG49dyxAkpg5I7bKWyboqRzWMucTvFs+ICAdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('d058ffa9941847ab9c17b2de3e99a55c')
+YOUR_CHANNEL_ACCESS_TOKEN = 'jjVn95fN2oKScGSAkgBPQHkldMEDFDeZR/finOubFVWnSiSYBswORQQV/JtBMlLF8qaHCdPieNuVE4mGGXY+EgE4ZOq8vLmgAg5o54nG09J/hXCt65cqG49dyxAkpg5I7bKWyboqRzWMucTvFs+ICAdB04t89/1O/w1cDnyilFU='
+YOUR_CHANNEL_SECRET = 'd058ffa9941847ab9c17b2de3e99a55c'
+
+line_bot_api = LineBotApi(YOUR_CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(YOUR_CHANNEL_SECRET)
 
 
 @app.route("/")
@@ -96,21 +107,18 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    if event.message.text == "出勤":
+    if event.message.text == "開始":
         punch_in()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='出勤登録完了しました！'))
-    elif event.message.text == "退勤":
+            TextSendMessage(text='さおが勉強はじめました！頑張れ！‼‼'))
+        
+    elif event.message.text == "終了":
         punch_out()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='退勤登録完了しました！'))
-    else: 
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='わたくしは久保田創太の出退勤を管理するボットでございます。それ以外の人には興味ないです。'))
-
+            TextSendMessage(text='勉強おわりました！お疲れさまでした！　勉強時間は、',str(elapsed_hour).zfill(2) + ":" + str(elapsed_minute).zfill(2) + ":" + str(elapsed_second).zfill(2),'でした！'))
+    
 
 
 if __name__ == "__main__":
