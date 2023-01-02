@@ -66,11 +66,8 @@ def punch_out():
     
 app = Flask(__name__)
 
-YOUR_CHANNEL_ACCESS_TOKEN = 'jjVn95fN2oKScGSAkgBPQHkldMEDFDeZR/finOubFVWnSiSYBswORQQV/JtBMlLF8qaHCdPieNuVE4mGGXY+EgE4ZOq8vLmgAg5o54nG09J/hXCt65cqG49dyxAkpg5I7bKWyboqRzWMucTvFs+ICAdB04t89/1O/w1cDnyilFU='
-YOUR_CHANNEL_SECRET = 'd058ffa9941847ab9c17b2de3e99a55c'
-
-line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
-handler = WebhookHandler('YOUR_CHANNEL_SECRET')
+line_bot_api = LineBotApi('jjVn95fN2oKScGSAkgBPQHkldMEDFDeZR/finOubFVWnSiSYBswORQQV/JtBMlLF8qaHCdPieNuVE4mGGXY+EgE4ZOq8vLmgAg5o54nG09J/hXCt65cqG49dyxAkpg5I7bKWyboqRzWMucTvFs+ICAdB04t89/1O/w1cDnyilFU=')
+handler = WebhookHandler('d058ffa9941847ab9c17b2de3e99a55c')
 
 
 @app.route("/")
@@ -96,14 +93,7 @@ def callback():
 
     return 'OK'
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text))
 
-
-'''
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "出勤":
@@ -120,8 +110,6 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='こちらは出退勤を管理するボットです'))
-'''
-
 
 
 
