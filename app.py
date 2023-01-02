@@ -48,7 +48,7 @@ def punch_in():
     punch_in = timestamp.strftime('%H:%M')
 
     data = [[date, punch_in, '00:00']]
-    df1 = pd.DataFrame(data, columns = ['日付', '勉強開始時間', '勉強終了時間', '勉強時間'])
+    df1 = pd.DataFrame(data, columns = ['日付', '勉強開始時間', '勉強終了時間'])
     df = pd.concat([df, df1])
     
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
