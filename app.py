@@ -109,7 +109,7 @@ def handle_message(event):
     else: 
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='こちらは出退勤を管理するボットです'))
+            TextSendMessage(text='わたくしは久保田創太の出退勤を管理するボットでございます。それ以外の人には興味ないです。'))
 
 
 
