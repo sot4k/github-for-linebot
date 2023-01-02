@@ -39,7 +39,6 @@ def auth():
 
 #　開始
 def punch_in():
-    start_time = time.time()
     worksheet = auth()
     df = pd.DataFrame(worksheet.get_all_records())
 
@@ -55,11 +54,6 @@ def punch_in():
 
 #　終了
 def punch_out():
-    elapsed_time = int(time.time() - start_time)
-    elapsed_hour = elapsed_time // 3600
-    elapsed_minute = (elapsed_time % 3600) // 60
-    elapsed_second = (elapsed_time % 3600 % 60)
-    
     worksheet = auth()
     df = pd.DataFrame(worksheet.get_all_records())
 
@@ -104,16 +98,22 @@ def callback():
 
     return 'OK'
 
-
+start = 0
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "開始":
+        global start
+        start = time.time()
         punch_in()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='さおが勉強はじめました！頑張れ！‼‼'))
-        
+            TextSendMessage(text='さおが勉強はじめました！頑張れ！！！'))
     elif event.message.text == "終了":
+        end = time.time()
+        elapsed_time = int(end - start)
+        elapsed_hour = elapsed_time // 3600
+        elapsed_minute = (elapsed_time % 3600) // 60
+        elapsed_second = (elapsed_time % 3600 % 60)
         punch_out()
         line_bot_api.reply_message(
             event.reply_token,
