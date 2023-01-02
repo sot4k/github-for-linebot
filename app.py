@@ -117,7 +117,7 @@ def handle_message(event):
         punch_out()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='勉強おわりました！お疲れさまでした！　勉強時間は、',str(elapsed_hour).zfill(2) + ":" + str(elapsed_minute).zfill(2) + ":" + str(elapsed_second).zfill(2),'でした！'))
+            TextSendMessage(text={'勉強おわりました！お疲れさまでした！　勉強時間は、',str(elapsed_hour).zfill(2) + ":" + str(elapsed_minute).zfill(2) + ":" + str(elapsed_second).zfill(2),'でした！'}))
     
 
 
