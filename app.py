@@ -15,7 +15,7 @@ import os
 
 import pandas as pd
 
-import time
+from time import time
 
 from datetime import datetime
 import gspread
@@ -36,34 +36,58 @@ def auth():
     worksheet = gc.open_by_key(SP_SHEET_KEY).worksheet(SP_SHEET)
     return worksheet
 
+start = 0
+elapsed_time = 0
+elapsed_hour = 0
+elapsed_minute = 0
+elapsed_second = 0
+salary_for_sota = 0
 
 #　開始
 def punch_in():
+    global start
+    start = time()
+        
     worksheet = auth()
     df = pd.DataFrame(worksheet.get_all_records())
 
     timestamp = datetime.now()
     date = timestamp.strftime('%Y/%m/%d')
-    punch_in = timestamp.strftime('%H:%M')
+    punch_in = timestamp.strftime('%H:%M:%S')
 
-    data = [[date, punch_in, '00:00']]
-    df1 = pd.DataFrame(data, columns = ['日付', '勉強開始時間', '勉強終了時間'])
+    data = [[date, punch_in, '00:00:00', '00:00:00', '0円']]
+    df1 = pd.DataFrame(data, columns = ['日付', '勉強開始時間', '勉強終了時間','勉強時間', '給料'])
     df = pd.concat([df, df1])
     
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
 
 #　終了
 def punch_out():
+    global elapsed_time, elapsed_hour, elapsed_minute, elapsed_second
+    elapsed_time = int(time() - start)
+    elapsed_hour = elapsed_time // 3600
+    elapsed_minute = (elapsed_time % 3600) // 60
+    elapsed_second = (elapsed_time % 3600 % 60)
     worksheet = auth()
     df = pd.DataFrame(worksheet.get_all_records())
 
     timestamp = datetime.now()
-    punch_out = timestamp.strftime('%H:%M')
-
+    punch_out = timestamp.strftime('%H:%M:%S')
+    study_time = str(elapsed_hour).zfill(2)+":"+str(elapsed_minute).zfill(2)+":"+str(elapsed_second).zfill(2)
     df.iloc[-1, 2] = punch_out
+    df.iloc[-1, 3] = study_time
 
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
     
+#給料計算
+def salary():
+    global salary_for_sota
+    salary_for_sota = 2000 * elapsed_time/3600
+    worksheet = auth()
+    df = pd.DataFrame(worksheet.get_all_records())
+    
+    df.iloc[-1, 4] = str(salary_for_sota)+'円'
+    worksheet.update([df.columns.values.tolist()] + df.values.tolist())
     
     
 app = Flask(__name__)
@@ -98,27 +122,24 @@ def callback():
 
     return 'OK'
 
-start = 0
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "開始":
-        global start
-        start = time.time()
         punch_in()
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='さおが勉強はじめました！頑張れ！！！'))
+        
     elif event.message.text == "終了":
-        end = time.time()
-        elapsed_time = int(end - start)
-        elapsed_hour = elapsed_time // 3600
-        elapsed_minute = (elapsed_time % 3600) // 60
-        elapsed_second = (elapsed_time % 3600 % 60)
         punch_out()
+        salary()
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text={'勉強おわりました！お疲れさまでした！　勉強時間は、',str(elapsed_hour).zfill(2) + ":" + str(elapsed_minute).zfill(2) + ":" + str(elapsed_second).zfill(2),'でした！'}))
-    
+            TextSendMessage(text='勉強終わりました！勉強時間は'+str(elapsed_hour).zfill(2)+":"+str(elapsed_minute).zfill(2)+":"+str(elapsed_second).zfill(2)+'でした！お疲れさまでした！\n今回の創太の給料は'+str(salary_for_sota)+'円でした！'))     
+    else:
+        pass    
+
 
 
 if __name__ == "__main__":
